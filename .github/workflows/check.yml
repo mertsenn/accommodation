@@ -1,0 +1,35 @@
+name: magis-check
+
+on:
+  schedule:
+    # 30 dakikada bir (UTC). :00/:30 GitHub'da yogun oldugu icin :07/:37
+    - cron: "7,37 * * * *"
+  workflow_dispatch: # Actions sekmesinden elle calistirmak icin
+
+permissions:
+  contents: write # state.json'i repoya geri yazmak icin
+
+concurrency:
+  group: magis-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Magis'i kontrol et
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CITY: Eindhoven
+        run: python3 bot.py
+
+      - name: State'i kaydet
+        run: |
+          git config user.name "magis-bot"
+          git config user.email "magis-bot@users.noreply.github.com"
+          git add state.json 2>/dev/null || exit 0
+          git diff --cached --quiet || (git commit -m "state guncellendi" && git push)
