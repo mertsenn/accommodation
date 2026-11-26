@@ -5,6 +5,8 @@ on:
     # 30 dakikada bir (UTC). :00/:30 GitHub'da yogun oldugu icin :07/:37
     - cron: "7,22,37,52 * * * *"
   workflow_dispatch: # Actions sekmesinden elle calistirmak icin
+  repository_dispatch:
+    types: [magis]
 
 permissions:
   contents: write # state.json'i repoya geri yazmak icin
